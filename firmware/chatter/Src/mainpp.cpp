@@ -26,7 +26,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 void setup(void)
 {
   nh.initNode();
-  HAL_Delay(1000);
   nh.advertise(chatter);
 }
 
