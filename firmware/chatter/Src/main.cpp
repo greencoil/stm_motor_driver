@@ -41,7 +41,9 @@
 #include "stm32f3xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-#include <mainpp.h>
+//#include <mainpp.h>
+#include <ros.h>
+#include <std_msgs/String.h>
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -71,7 +73,26 @@ static void MX_TIM1_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+ros::NodeHandle nh;
 
+std_msgs::String str_msg;
+ros::Publisher chatter("chatter", &str_msg);
+char hello[] = "Hello world!";
+void setup(void)
+{
+  nh.initNode();
+  nh.advertise(chatter);
+}
+void loop(void)
+{
+  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+
+  str_msg.data = hello;
+  chatter.publish(&str_msg);
+  nh.spinOnce();
+
+  HAL_Delay(100);
+}
 /* USER CODE END 0 */
 
 int main(void)
@@ -105,6 +126,8 @@ int main(void)
   MX_TIM1_Init();
 
   /* USER CODE BEGIN 2 */
+
+
   setup();
   /* USER CODE END 2 */
 
@@ -317,7 +340,13 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
+  nh.getHardware()->flush();
+}
 
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+  nh.getHardware()->reset_rbuf();
+}
 /* USER CODE END 4 */
 
 /**
